@@ -7,6 +7,7 @@
 
 import SwiftUI
 
+// please rename
 struct ContentView: View {
     var body: some View {
         VStack {
