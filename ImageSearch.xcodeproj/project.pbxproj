@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		3FE849782DF71FEF00E84374 /* Collections in Frameworks */ = {isa = PBXBuildFile; productRef = 3FE849772DF71FEF00E84374 /* Collections */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		3FE849472DF7144A00E84374 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -52,6 +56,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3FE849782DF71FEF00E84374 /* Collections in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -112,6 +117,7 @@
 			);
 			name = ImageSearch;
 			packageProductDependencies = (
+				3FE849772DF71FEF00E84374 /* Collections */,
 			);
 			productName = ImageSearch;
 			productReference = 3FE849392DF7144900E84374 /* ImageSearch.app */;
@@ -197,6 +203,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				3FE849752DF7166E00E84374 /* XCRemoteSwiftPackageReference "SwiftLintPlugins" */,
+				3FE849762DF71FEF00E84374 /* XCRemoteSwiftPackageReference "swift-collections" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 3FE8493A2DF7144900E84374 /* Products */;
@@ -563,7 +570,23 @@
 				minimumVersion = 0.59.1;
 			};
 		};
+		3FE849762DF71FEF00E84374 /* XCRemoteSwiftPackageReference "swift-collections" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-collections.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.2.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		3FE849772DF71FEF00E84374 /* Collections */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 3FE849762DF71FEF00E84374 /* XCRemoteSwiftPackageReference "swift-collections" */;
+			productName = Collections;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 3FE849312DF7144900E84374 /* Project object */;
 }

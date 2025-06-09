@@ -1,6 +1,7 @@
 
 // TODO: Implement Caching
 import Foundation
+import Collections
 
 public enum ServiceError: Error {
     case invalidURL
@@ -42,11 +43,16 @@ extension Request {
 
 public protocol ServiceAPI {
     func execute<T: Decodable>(request: Request, modelName: T.Type) async throws -> T
-    func fetchImage(url: URL) async throws -> Data
+    func fetchImage(for searchTerm: String, url: String) async throws -> Data
 }
 
 public class ServiceManager: ServiceAPI{
-    public init() {}
+    // "searchTerm", ["URL": ImageDataForUrl]
+    private var cache: Deque<(String, [String: Data])> = []
+
+    public init() {
+        cache.reserveCapacity(10)
+    }
     public func execute<T>(request: any Request, modelName: T.Type) async throws -> T where T : Decodable {
         guard let urlRequest = request.createRequest() else {
             throw ServiceError.invalidURL
@@ -57,7 +63,32 @@ public class ServiceManager: ServiceAPI{
         return try JSONDecoder().decode(
              modelName.self, from: data)
     }
-    public func fetchImage(url: URL) async throws -> Data {
-        return Data()
+    public func fetchImage(for searchTerm: String, url: String) async throws -> Data {
+        let step1 = cache.filter({$0.0 == searchTerm})
+        if step1.isEmpty {
+            return try await getImageData(for: searchTerm, with: url)
+        }
+        guard let imageFromUrl = step1[0].1[url] else {
+            return try await getImageData(for: searchTerm, with: url)
+        }
+        return imageFromUrl
+    }
+    
+    private func getImageData(for searchTerm: String, with url: String) async throws -> Data {
+        let urlRequest = URLRequest(url: URL(string: url) ?? URL(fileURLWithPath: ""))
+        let (rawData, _) = try await URLSession.shared.data(for: urlRequest)
+        if cache.count == 10 && cache.last?.0 != searchTerm{
+            let _ = cache.popFirst()
+            cache.append( (searchTerm, [url: rawData]) )
+        }
+        else {
+            for var element in cache {
+                if element.0 == searchTerm {
+                    element.1[url] = rawData
+                    return rawData
+                }
+            }
+        }
+        return rawData
     }
 }
