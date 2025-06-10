@@ -28,7 +28,7 @@ struct PixabayRequest: Request {
     var header: [String: String]
 
     init(query: String) {
-        self.baseURL = "https://pixabay.com"
+        self.baseURL = "https://www.pixabay.com"
         self.path = "/api/"
         self.httpMethod = .get
         self.params = [

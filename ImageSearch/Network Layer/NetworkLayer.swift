@@ -53,16 +53,23 @@ public class ServiceManager: ServiceAPI{
     public init() {
         cache.reserveCapacity(10)
     }
+    
     public func execute<T>(request: any Request, modelName: T.Type) async throws -> T where T : Decodable {
         guard let urlRequest = request.createRequest() else {
             throw ServiceError.invalidURL
         }
-        
-        let (data, _) =  try await URLSession.shared.data(for: urlRequest)
-       
+        let configuration = URLSessionConfiguration.default // Or .ephemeral, or .background
+        configuration.timeoutIntervalForRequest = 30 // Set request timeout to 30 seconds
+        configuration.timeoutIntervalForResource = 300 // Set resource timeout to 300 seconds (5 minutes)
+
+        let session = URLSession(configuration: configuration) // Initialize URLSession with the configuration
+        session.configuration.httpShouldSetCookies = false
+        let (data, _) =  try await session.data(for: urlRequest)
+        session.finishTasksAndInvalidate()
         return try JSONDecoder().decode(
              modelName.self, from: data)
     }
+    
     public func fetchImage(for searchTerm: String, url: String) async throws -> Data {
         let step1 = cache.filter({$0.0 == searchTerm})
         if step1.isEmpty {
@@ -77,14 +84,17 @@ public class ServiceManager: ServiceAPI{
     private func getImageData(for searchTerm: String, with url: String) async throws -> Data {
         let urlRequest = URLRequest(url: URL(string: url) ?? URL(fileURLWithPath: ""))
         let (rawData, _) = try await URLSession.shared.data(for: urlRequest)
-        if cache.count == 10 && cache.last?.0 != searchTerm{
+        if cache.isEmpty {
+            cache.append( (searchTerm, [url: rawData]) )
+        }
+        else if cache.count == 10 && cache.last?.0 != searchTerm{
             let _ = cache.popFirst()
             cache.append( (searchTerm, [url: rawData]) )
         }
         else {
-            for var element in cache {
-                if element.0 == searchTerm {
-                    element.1[url] = rawData
+            for (elementIndex, _) in cache.enumerated() {
+                if cache[elementIndex].0 == searchTerm {
+                    cache[elementIndex].1[url] = rawData
                     return rawData
                 }
             }
