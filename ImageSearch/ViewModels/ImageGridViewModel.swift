@@ -35,6 +35,7 @@ class ImageGridViewModel: ObservableObject {
                 print("\(error)\nCould not download from URL: \(image.previewURL)")
             }
         }
+        
     }
 //    
 //    func downloadAndReturnImage(url: String) async -> Data? {

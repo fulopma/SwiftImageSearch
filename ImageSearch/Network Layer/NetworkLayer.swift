@@ -63,9 +63,9 @@ public class ServiceManager: ServiceAPI{
         configuration.timeoutIntervalForResource = 300 // Set resource timeout to 300 seconds (5 minutes)
 
         let session = URLSession(configuration: configuration) // Initialize URLSession with the configuration
-
+        session.configuration.httpShouldSetCookies = false
         let (data, _) =  try await session.data(for: urlRequest)
-        
+        session.finishTasksAndInvalidate()
         return try JSONDecoder().decode(
              modelName.self, from: data)
     }
@@ -84,14 +84,17 @@ public class ServiceManager: ServiceAPI{
     private func getImageData(for searchTerm: String, with url: String) async throws -> Data {
         let urlRequest = URLRequest(url: URL(string: url) ?? URL(fileURLWithPath: ""))
         let (rawData, _) = try await URLSession.shared.data(for: urlRequest)
-        if cache.count == 10 && cache.last?.0 != searchTerm{
+        if cache.isEmpty {
+            cache.append( (searchTerm, [url: rawData]) )
+        }
+        else if cache.count == 10 && cache.last?.0 != searchTerm{
             let _ = cache.popFirst()
             cache.append( (searchTerm, [url: rawData]) )
         }
         else {
-            for var element in cache {
-                if element.0 == searchTerm {
-                    element.1[url] = rawData
+            for (elementIndex, _) in cache.enumerated() {
+                if cache[elementIndex].0 == searchTerm {
+                    cache[elementIndex].1[url] = rawData
                     return rawData
                 }
             }

@@ -9,7 +9,8 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var searchText = ""
-    @StateObject private var viewModel = SearchViewModel()
+    @State private var showGridView: Bool = false
+ //   @ObservedObject private var viewModel = SearchViewModel()
     init() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -22,8 +23,7 @@ struct ContentView: View {
     }
 
     var body: some View {
-        // TODO: NavigationView is deprecated; use NavigationLink
-        NavigationView {
+        NavigationStack {
             ZStack {
                 Color.black
                     .ignoresSafeArea()
@@ -50,18 +50,18 @@ struct ContentView: View {
                             .fill(Color.white.opacity(0.15))
                     )
                     .padding(.horizontal)
-                    Button(action: {
-                        // Perform search here
-                        print("Search now tapped with: \(searchText)")
-                        viewModel.performSearch(query: searchText)
-                        
-                    }) {
+                    Button {
+                        showGridView = true
+                    }label: {
                         Text("Search Now")
                             .fontWeight(.bold)
                             .foregroundColor(.blue)
                             .frame(maxWidth: .infinity)
                             .padding()
+                    }.navigationDestination(isPresented: $showGridView) {
+                        ImageGridView(query: searchText)
                     }
+                   
 
                     Spacer()
                 }
