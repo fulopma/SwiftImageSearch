@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var searchText = ""
-    
+    @StateObject private var viewModel = SearchViewModel()
     init() {
         let appearance = UINavigationBarAppearance()
         appearance.configureWithOpaqueBackground()
@@ -40,6 +40,8 @@ struct ContentView: View {
                             .foregroundColor(.white)
                             .autocapitalization(.none)
                             .disableAutocorrection(true)
+                        
+                        
                     }
                     .padding(10)
                     .background(
@@ -50,6 +52,7 @@ struct ContentView: View {
                     Button(action: {
                         // Perform search here
                         print("Search now tapped with: \(searchText)")
+                        viewModel.performSearch(query: searchText)
                         
                     }) {
                         Text("Search Now")

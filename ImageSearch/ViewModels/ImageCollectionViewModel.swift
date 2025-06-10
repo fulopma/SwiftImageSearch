@@ -10,6 +10,7 @@ import Foundation
 @MainActor
 class ImageGridViewModel: ObservableObject {
     @Published var images: [PixabayImage] = []
+     var searchViewModel = SearchViewModel()
     private let networkManager: ServiceAPI
 
     init(networkManager: ServiceAPI = ServiceManager()) {
@@ -17,7 +18,7 @@ class ImageGridViewModel: ObservableObject {
     }
 
     func fetchImages() async {
-        let request = PixabayRequest(query: "Cat")
+        let request = PixabayRequest(query: searchViewModel.searchText)
         do {
             let response = try await networkManager.execute(request: request, modelName: PixabayResponse.self)
             self.images = response.hits
