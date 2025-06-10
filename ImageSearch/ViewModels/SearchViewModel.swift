@@ -11,7 +11,6 @@ import Foundation
 class SearchViewModel: ObservableObject {
     @Published var searchText: String = ""
     @Published var shouldNavigateToResults: Bool = false
-    var imageGridViewModel = ImageGridViewModel()
 
     func performSearch(query: String) {
         guard !searchText.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {

@@ -7,9 +7,12 @@
 
 import SwiftUI
 
-struct ImageCollectionView: View {
+struct ImageGridView: View {
     
-    @StateObject var viewModel = ImageGridViewModel()
+    @ObservedObject var viewModel: ImageGridViewModel
+    init(query: String){
+        self.viewModel = ImageGridViewModel(query: query)
+    }
     // searchModelView
     // viewModel.query = searchbar.text
     let columns = [GridItem(.flexible()), GridItem(.flexible()),  GridItem(.flexible())]
@@ -61,25 +64,25 @@ struct ImageCollectionView: View {
     
 }
 
-struct ImageFromDataView: View {
-    let imageData: Data?
-
-    var body: some View {
-        if let data = imageData,
-           let uiImage = UIImage(data: data) {
-            Image(uiImage: uiImage)
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-        } else {
-            // Placeholder if data is nil or conversion fails
-            Image(systemName: "photo")
-                .resizable()
-                .aspectRatio(contentMode: .fit)
-                .foregroundColor(.gray)
-        }
-    }
-}
+//struct ImageFromDataView: View {
+//    let imageData: Data?
+//
+//    var body: some View {
+//        if let data = imageData,
+//           let uiImage = UIImage(data: data) {
+//            Image(uiImage: uiImage)
+//                .resizable()
+//                .aspectRatio(contentMode: .fit)
+//        } else {
+//            // Placeholder if data is nil or conversion fails
+//            Image(systemName: "photo")
+//                .resizable()
+//                .aspectRatio(contentMode: .fit)
+//                .foregroundColor(.gray)
+//        }
+//    }
+//}
 
 #Preview {
-    
+    ImageGridView(query: "House")
 }

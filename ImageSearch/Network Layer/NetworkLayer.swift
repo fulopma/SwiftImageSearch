@@ -53,16 +53,23 @@ public class ServiceManager: ServiceAPI{
     public init() {
         cache.reserveCapacity(10)
     }
+    
     public func execute<T>(request: any Request, modelName: T.Type) async throws -> T where T : Decodable {
         guard let urlRequest = request.createRequest() else {
             throw ServiceError.invalidURL
         }
+        let configuration = URLSessionConfiguration.default // Or .ephemeral, or .background
+        configuration.timeoutIntervalForRequest = 30 // Set request timeout to 30 seconds
+        configuration.timeoutIntervalForResource = 300 // Set resource timeout to 300 seconds (5 minutes)
+
+        let session = URLSession(configuration: configuration) // Initialize URLSession with the configuration
+
+        let (data, _) =  try await session.data(for: urlRequest)
         
-        let (data, _) =  try await URLSession.shared.data(for: urlRequest)
-       
         return try JSONDecoder().decode(
              modelName.self, from: data)
     }
+    
     public func fetchImage(for searchTerm: String, url: String) async throws -> Data {
         let step1 = cache.filter({$0.0 == searchTerm})
         if step1.isEmpty {

@@ -22,6 +22,7 @@ struct ContentView: View {
     }
 
     var body: some View {
+        // TODO: NavigationView is deprecated; use NavigationLink
         NavigationView {
             ZStack {
                 Color.black

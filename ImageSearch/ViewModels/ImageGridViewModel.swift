@@ -11,11 +11,12 @@ import Foundation
 class ImageGridViewModel: ObservableObject {
     @Published private var images: [PixabayImage] = []
     private let networkManager: ServiceAPI
-    @Published var query: String = ""
+    @Published var query: String
     @Published var imageData: [Data] = []
-
-    init(networkManager: ServiceAPI = ServiceManager()) {
+    
+    init(networkManager: ServiceAPI = ServiceManager(), query: String) {
         self.networkManager = networkManager
+        self.query = query
     }
 
     func fetchImages() async {
