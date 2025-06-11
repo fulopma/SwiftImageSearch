@@ -49,12 +49,27 @@ public protocol ServiceAPI {
 public class ServiceManager: ServiceAPI{
     // "searchTerm", ["URL": ImageDataForUrl]
     private var cache: Deque<(String, [String: Data])> = []
-
+    static private let responses = readResponsesJson()
     public init() {
         cache.reserveCapacity(10)
+        for response in ServiceManager.responses {
+            print(response.searchTerm)
+        }
     }
     
-    public func execute<T>(request: any Request, modelName: T.Type) async throws -> T where T : Decodable {
+    public func execute<T>(request: any Request, modelName: T.Type) async throws -> T where T : Decodable
+    {
+        // have to implemt
+        for response in ServiceManager.responses {
+            if response.searchTerm == request.params["q"] ?? "" {
+                if let result = response.results as? T {
+                    return result
+                }
+                else {
+                    fatalError("Failed casting return")
+                }
+            }
+        }
         guard let urlRequest = request.createRequest() else {
             throw ServiceError.invalidURL
         }

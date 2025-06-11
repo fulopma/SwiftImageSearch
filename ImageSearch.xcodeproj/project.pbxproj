@@ -38,16 +38,28 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
+				responses.json,
 			);
 			target = 3FE849382DF7144900E84374 /* ImageSearch */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
+		3F3CA52D2DF8C65800E71951 /* Exceptions for "ImageSearch" folder in "Compile Sources" phase from "ImageSearch" target */ = {
+			isa = PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet;
+			buildPhase = 3FE849352DF7144900E84374 /* Sources */;
+			membershipExceptions = (
+				responses.json,
+			);
+		};
+/* End PBXFileSystemSynchronizedGroupBuildPhaseMembershipExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		3FE8493B2DF7144900E84374 /* ImageSearch */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
 				3F3CA4242DF869A900E71951 /* Exceptions for "ImageSearch" folder in "ImageSearch" target */,
+				3F3CA52D2DF8C65800E71951 /* Exceptions for "ImageSearch" folder in "Compile Sources" phase from "ImageSearch" target */,
 			);
 			path = ImageSearch;
 			sourceTree = "<group>";
