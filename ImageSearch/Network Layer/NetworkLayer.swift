@@ -40,8 +40,8 @@ extension Request {
         return urlRequest
     }
 }
-
-public protocol ServiceAPI {
+ protocol ServiceAPI {
+    func readLocalResponse() -> [LocalResponse]
     func execute<T: Decodable>(request: Request, modelName: T.Type) async throws -> T
     func fetchImage(for searchTerm: String, url: String) async throws -> Data
 }
@@ -49,18 +49,57 @@ public protocol ServiceAPI {
 public class ServiceManager: ServiceAPI{
     // "searchTerm", ["URL": ImageDataForUrl]
     private var cache: Deque<(String, [String: Data])> = []
-
+    private var localResponses: [LocalResponse] = []
     public init() {
         cache.reserveCapacity(10)
+        localResponses = readLocalResponse()
     }
     
+    func readLocalResponse() -> [LocalResponse] {
+        guard let url = Bundle.main.url(
+            forResource: "pixabay_resultsQ",
+            withExtension: "json"
+        ) else {
+            print("File not found")
+            fatalError("no point")
+        }
+
+        guard let data = try? Data(contentsOf: url) else {
+            print("Cannot read file")
+            fatalError("no file readable")
+        }
+
+        let jsonDecoder = JSONDecoder()
+
+        do {
+            let responses = try jsonDecoder.decode([LocalResponse].self, from: data)
+            return responses
+            
+        } catch {
+            print("Error parsing json: \(error)")
+            fatalError("No point in continuing")
+        }
+    }
+    
+    private func returnLocalResponse(query: String) -> PixabayResponse? {
+        guard let response = localResponses.first (where: { $0.query == query } ) else {
+            return nil
+        }
+        let pr = PixabayResponse(hits: response.hits)
+        return pr
+    }
+
     public func execute<T>(request: any Request, modelName: T.Type) async throws -> T where T : Decodable {
+        if let response = returnLocalResponse(query: request.params["q"]?.lowercased() ?? "") {
+            return response as! T 
+        }
+        
         guard let urlRequest = request.createRequest() else {
             throw ServiceError.invalidURL
         }
         let configuration = URLSessionConfiguration.default // Or .ephemeral, or .background
-        configuration.timeoutIntervalForRequest = 30 // Set request timeout to 30 seconds
-        configuration.timeoutIntervalForResource = 300 // Set resource timeout to 300 seconds (5 minutes)
+        configuration.timeoutIntervalForRequest = 10 // Set request timeout to 30 seconds
+       // configuration.timeoutIntervalForResource = 300 // Set resource timeout to 300 seconds (5 minutes)
 
         let session = URLSession(configuration: configuration) // Initialize URLSession with the configuration
         session.configuration.httpShouldSetCookies = false
@@ -82,8 +121,15 @@ public class ServiceManager: ServiceAPI{
     }
     
     private func getImageData(for searchTerm: String, with url: String) async throws -> Data {
-        let urlRequest = URLRequest(url: URL(string: url) ?? URL(fileURLWithPath: ""))
-        let (rawData, _) = try await URLSession.shared.data(for: urlRequest)
+        guard let urlObj = URL(string: url) else {
+            throw NSError(domain: "Invalid URL \(url)", code: 1001, userInfo: nil)
+        }
+        var request = URLRequest(url: urlObj)
+       request.httpMethod = "GET"
+      // request.setValue("image/*", forHTTPHeaderField: "Accept")
+       request.setValue("Chrome", forHTTPHeaderField: "User-Agent") // simulate browser
+
+       let (rawData, _) = try await URLSession.shared.data(for: request)
         if cache.isEmpty {
             cache.append( (searchTerm, [url: rawData]) )
         }
